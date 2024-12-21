@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  memory_db_redis:
+    image: redis:latest
+    container_name: memory_db_redis
+    ports:
+      - "6379:6379"
+
+  tool_runtime_docker:
+    image: docker:24.0.2-dind
+    container_name: tool_runtime_docker
+    privileged: true
+    volumes:
+      - docker-data:/var/lib/docker
+    environment:
+      - DOCKER_TLS_CERTDIR=   # Disable Docker TLS
+
+  bff_fastapi_app:
+    build:
+      context: ./
+    container_name: fastapi-app
+    depends_on:
+      - memory_db_redis
+      - tool_runtime_docker
+    ports:
+      - "8000:8000"
+    environment:
+      - DOCKER_HOST=tcp://docker-dind:2375
+
+volumes:
+  docker-data:
