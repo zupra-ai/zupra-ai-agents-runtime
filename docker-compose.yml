@@ -26,7 +26,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DOCKER_HOST=tcp://docker-dind:2375
+      - DOCKER_HOST=tcp://tool_runtime_docker:2375
 
 volumes:
   docker-data:
