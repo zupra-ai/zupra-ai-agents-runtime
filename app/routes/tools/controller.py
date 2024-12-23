@@ -2,18 +2,13 @@ from fastapi import APIRouter, HTTPException
 from docker import from_env as docker_from_env
 from app.clients.redis_client import redis_client
 from app.routes.tools.schemas import NewToolRequest
+from app.clients.docker_client import docker_client
+
 router = APIRouter()
 
-# Connect to Docker
-try:
-    docker_client = docker_from_env()
-    print(f"🟢  Connected to docker")
-except Exception as e:
-    print(f"🔴  Error connecting to Docker: {e}")
+route_prefix = "/tools"
 
-_prefix = "/tools"
-
-@router.post(_prefix )
+@router.post(route_prefix )
 def create_tool(new_tool: NewToolRequest):
     """
     Endpoint to create and run a container.
@@ -25,8 +20,8 @@ def create_tool(new_tool: NewToolRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get(_prefix)
-def list_containers():
+@router.get(route_prefix)
+def list_tools():
     """
     List all running containers.
     """
@@ -35,8 +30,8 @@ def list_containers():
     return {"containers": container_info}
 
 
-@router.get(_prefix + "{name}")
-def get_container_info(name: str):
+@router.get(route_prefix + "{name}")
+def get_tool(name: str):
     """
     Get container information by name.
     """
