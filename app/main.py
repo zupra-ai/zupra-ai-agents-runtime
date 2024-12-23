@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from docker import from_env as docker_from_env
-import redis
+from app.clients.redis_client import redis_client
+from app.routes.tools.controller import router as tools_router
+
+
 
 app = FastAPI()
-
-# Connect to Redis
-redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 # Connect to Docker
 try:
@@ -65,3 +65,9 @@ def get_container_info(name: str):
         "status": container.status,
         "image": container.image.tags,
     }
+    
+
+
+app.include_router(router=tools_router, prefix="/v1")
+
+

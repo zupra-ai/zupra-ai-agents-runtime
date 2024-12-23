@@ -2,3 +2,5 @@ fastapi
 uvicorn
 docker
 redis
+pydantic==2.8.2
+pydantic-settings==2.4.0
