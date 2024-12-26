@@ -1,6 +1,6 @@
-# Docker FastAPI Redis Runtime for Agentic Tools
+# Zupra.ai Runtime for Agentic Tools
 
-Welcome to the Docker FastAPI Redis Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
+Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
 
 ## Features
 
@@ -22,8 +22,8 @@ Follow these steps to set up and run the project:
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/docker-fastapi-redis.git
-    cd docker-fastapi-redis
+    git clone https://github.com/zupra-ai/zupra-ai-tools.git
+    cd zupra-ai-tools
     ```
 
 2. **Build and Run the Docker Containers**:
