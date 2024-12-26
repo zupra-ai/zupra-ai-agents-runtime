@@ -3,6 +3,7 @@ from docker import from_env as docker_from_env
 from app.clients.redis_client import redis_client
 from app.routes.tools.schemas import NewToolRequest
 from app.clients.docker_client import docker_client
+from app.routes.tools.services import ToolsService
 
 router = APIRouter()
 
@@ -22,27 +23,18 @@ def create_tool(new_tool: NewToolRequest):
 
 @router.get(route_prefix, tags=["Tools"])
 def list_tools():
-    """
-    List all running containers.
-    """
-    containers = docker_client.containers.list()
-    container_info = [{"id": c.id, "name": c.name, "status": c.status} for c in containers]
-    return {"containers": container_info}
+    try:
+        service =  ToolsService()
+        return service.get_tools()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get(route_prefix + "/{tool_id}", tags=["Tools"])
 def get_tool(tool_id: str):
-    """
-    Get container information by name.
-    """
-    container_id = redis_client.get(tool_id)
-    if not container_id:
-        raise HTTPException(status_code=404, detail="Container not found in Redis")
-    
-    container = docker_client.containers.get(container_id)
-    return {
-        "id": container.id,
-        "name": container.name,
-        "status": container.status,
-        "image": container.image.tags,
-    }
+    try:
+        service =  ToolsService()
+        return service.get_tools()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
