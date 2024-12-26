@@ -6,10 +6,10 @@ from app.clients.docker_client import docker_client
 
 router = APIRouter()
 
-route_prefix = "/tools"
+route_prefix = "/threads"
 
-@router.post(route_prefix , tags=["Tools"])
-def create_tool(new_tool: NewToolRequest):
+@router.post(route_prefix , tags=["Threads"])
+def create_thread(new_tool: NewToolRequest):
     """
     Endpoint to create and run a container.
     """
@@ -20,8 +20,8 @@ def create_tool(new_tool: NewToolRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get(route_prefix, tags=["Tools"])
-def list_tools():
+@router.get(route_prefix, tags=["Threads"])
+def list_thread():
     """
     List all running containers.
     """
@@ -30,8 +30,8 @@ def list_tools():
     return {"containers": container_info}
 
 
-@router.get(route_prefix + "/{tool_id}", tags=["Tools"])
-def get_tool(tool_id: str):
+@router.get(route_prefix + "/{tool_id}", tags=["Threads"])
+def get_thread(tool_id: str):
     """
     Get container information by name.
     """
