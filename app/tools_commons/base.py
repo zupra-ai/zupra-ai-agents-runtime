@@ -53,7 +53,7 @@ def parse_function_docstring(function_str):
 
 def build_core_class():
     return """import requests
-PUBLIC_BFF_URL = '""" + settings.bff_url_public + """'
+PUBLIC_BFF_URL = '""" + settings.bff_public_url + """'
 
 class ToolContext:
 
