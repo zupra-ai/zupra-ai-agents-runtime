@@ -8,11 +8,10 @@ from app.clients.dbs.mongodb_client import get_tools_db
 class ToolsService:
     collection =  None
     
-    def __init__(self, db):
-        self.collection = db
+    def __init__(self, fn_collection_name="functions"):
         try:
             db = get_tools_db()
-            self.collection = db["functions"]
+            self.collection = db[fn_collection_name]
         except:
             raise Exception("Error connection to Functions DB")
 
@@ -20,10 +19,7 @@ class ToolsService:
         
     def get_tools(self):
         try:
-            functions = self.collection.find({
-                "$or": [
-                    # _filter
-                ]
+            functions = self.collection.find({ 
             }).skip(0).limit(20).sort({"_id": -1})
             
             return {
