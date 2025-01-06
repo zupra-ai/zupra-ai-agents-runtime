@@ -29,6 +29,23 @@ services:
       retries: 3
       start_period: 10s
 
+  vector_db_chroma:
+    image: chromadb/chroma:0.6.1
+    container_name: vector_db_chroma
+    ports:
+      - "8529:8000"
+    volumes:
+      - chromadb-data:/var/lib/chromadb
+    # environment:
+    #   - CHROMADB_ROOT_PASSWORD="password"
+    #   - CHROMA_CLIENT_AUTH_CREDENTIALS="admin:admin"
+    #   - ANONYMIZED_TELEMETRY="false"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8529/api/v2/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   bff_fastapi_app:
     build:
@@ -39,12 +56,20 @@ services:
         condition: service_healthy
       memory_db_redis:
         condition: service_healthy
+      vector_db_chroma:
+        condition: service_healthy
     ports:
       - "8000:8000"
     # env_file:
     #   - ./.env
     environment:
       - DOCKER_HOST=tcp://tool_runtime_docker:2375
-
+    command: >
+      sh -c "
+      while ! curl -s http://memory_db_redis:6379; do sleep 1; done;
+      while ! curl -s http://tool_runtime_docker:2375; do sleep 1; done;
+      while ! curl -s http://vector_db_chroma:8529/_api/version; do sleep 1; done;
+      echo 'All services are up and running!'"
 volumes:
   docker-data:
+  chromadb-data:

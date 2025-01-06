@@ -1,10 +1,10 @@
-# Zupra.ai Runtime for Agentic Tools
+# zupra.ai Agents Runtime
 
 Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
 
 ## Features
 
-- **Autonomous and Non-Autonomous Agents**: Seamlessly manage different types of agents.
+- **Autonomous and Planned Agents Runtime**: Seamlessly manage different types of agents.
 - **Tool Management**: Integrate and manage various tools required by your agents.
 - **Thread Management**: Efficiently handle multiple threads for concurrent processing.
 - **Scalable and Flexible**: Built with Docker, FastAPI, and Redis for scalability and flexibility.
@@ -18,12 +18,17 @@ Follow these steps to set up and run the project:
 - Docker
 - Docker Compose
 
+### Run for Devs
+``` make up-s``` for run basic services
+
+``` make dev-api ``` for run Rest API
+
 ### Installation
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/zupra-ai/zupra-ai-tools.git
-    cd zupra-ai-tools
+    git clone https://github.com/zupra-ai/zupra-ai-agents-runtime.git
+    cd zupra-ai-agents-runtime
     ```
 
 2. **Build and Run the Docker Containers**:

@@ -1,42 +1,37 @@
-from fastapi import APIRouter, HTTPException, Query
-from docker import from_env as docker_from_env
+from fastapi import APIRouter, HTTPException
 from app.clients.redis_client import redis_client
-from app.routes.threads.schemas import NewThreadRequest
+from app.routes.agents.schemas import NewAgentRequest
 from app.clients.docker_client import docker_client
-from app.routes.threads.services import ThreadsService
+from app.routes.agents.services import AgentsService
 
 router = APIRouter()
 
-route_prefix = "/threads"
+route_prefix = "/agents"
 
-service =  ThreadsService()
+service =  AgentsService()
 
-@router.post(route_prefix , tags=["Threads"])
-def create_thread(new_tool: NewThreadRequest):
+@router.post(route_prefix , tags=["Agents"])
+def create_thread(new_tool: NewAgentRequest):
     """
     Endpoint to create and run a container.
     """
     try:
-        inserted =  service.create_thread({
-            **new_tool.model_dump()
-        })
-        
+        inserted =  service.create_agent(new_tool=new_tool)
         return {"id": str(inserted)}
-
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get(route_prefix, tags=["Threads"])
-def list_thread():
+@router.get(route_prefix, tags=["Agents"])
+def list_agents():
     try:
-        return service.get_threads()
+        return service.get_agents()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get(route_prefix + "/{thread_id}/history", tags=["Threads"])
-def get_thread_history(thread_id: str, offset: int = Query(default=0), limit: int = Query(default=10)):
+@router.post(route_prefix + "/{agent_id}/invoke-with/{thread_id}", tags=["Agents"])
+def invoke_agent(agent_id: str, thread_id: str):
     """
     Get container information by name.
     """
