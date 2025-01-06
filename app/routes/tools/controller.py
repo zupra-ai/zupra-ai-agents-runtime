@@ -1,15 +1,21 @@
 from datetime import datetime
 import uuid
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from docker import from_env as docker_from_env
+from fastapi.responses import JSONResponse
 from app.clients.dbs.chromadb_client import ChromaClient
 from app.clients.dbs.schemas import EmbeddableDocument
 from app.clients.redis_client import redis_client
-from app.docker_handler import create_docker_image_sources, build_image
+from app.docker_handler import create_docker_image_sources, build_image, remove_image
 from app.routes.tools.schemas import NewToolRequest
 from app.clients.docker_client import docker_client
 from app.routes.tools.services import ToolsService
 from app.tools_commons.base import parse_function_docstring, build_base_function
+import hashlib
+hasher = hashlib.sha256()
+
+python_executor_image = "python:3.11-slim"
 
 router = APIRouter()
 
@@ -117,11 +123,106 @@ def get_tool(tool_id: str):
 
 
 @router.put(route_prefix + "/{tool_id}", tags=["Tools"])
-def update_tool(tool_id: str):
+def update_tool(tool_id: str, request: NewToolRequest):
     try:
-        pass
+
+        parsed = parse_function_docstring(request.code)
+
+        # try:
+        #     db = get_database()
+        # except:
+        #     raise Exception("Error connection to Functions DB")
+
+        # tools_collection = db["functions"]
+        
+        tools_search = service.find_tools({"parsed_params.name": request.name,})
+        
+        
+        # tool_exists = tools_collection.find_one({
+        #     "parsed_params.name": request.name,
+        #     # "organization_id": request.organization_id
+        # })
+
+        # @TODO: avoid duplicate names
+        # if len(tools_search) > 0 and tool_exists["id"] != tool_id:
+        #     return JSONResponse(content={"error": f"A tool name with '{request.name}' already exist , try other name"}, status_code=500)
+
+        if parsed is None:
+            raise Exception("Invalid docstring")
+
+        _code = build_base_function(request.code)
+
+        # new_function = tools_collection.find_one({
+        #     "_id": ObjectId(deployment_id),
+        #     # "organization_id": request.organization_id
+        # })
+
+        # if new_function is None:
+        #     raise Exception(f"Function not found {deployment_id}")
+
+        try:
+            print("removing  image", new_function["image_name"])
+
+            remove_image(
+                image_name=new_function["image_name"],
+            )
+
+            redis_client.delete(
+                f"tool-{str(tool_id)}")
+
+            print("removed  image", new_function["image_name"])
+        except Exception as e:
+            print(f"🧧  Error deleting image: {e}")
+
+        # Generate a unique identifier for the Dockerfile and image
+        unique_id = str(uuid.uuid4())
+
+        try:
+            temp_dir = create_docker_image_sources(unique_id=unique_id,
+                                                   base_image_name=python_executor_image,
+                                                   code=_code,
+                                                   requirements_txt=request.requirements,
+                                                   environments_txt=request.environments
+                                                   )
+        except Exception as e:
+            print("Error creating docker image", f"{e}")
+            raise Exception("Failed to create docker resources")
+
+        try:
+            image_data = build_image(unique_id=unique_id, temp_dir=temp_dir)
+        except Exception as e:
+            # print("Error building image", f"{e}")
+            return JSONResponse(content={"error": f"{e}"}, status_code=500)
+
+        hasher.update(str(request.code + request.environments +
+                          request.requirements).encode())
+
+        new_hash = f"sha256:{hasher.hexdigest()}"
+
+        new_function = service.update_one(ObjectId(str(tool_id)), {
+            "$set": {
+                "deployment_id": unique_id,
+                # "description": parsed["description"],
+                "image_name": image_data["image_name"],
+                "hash": new_hash,
+                # "_function_name": request.name,
+                "_function": request.code,
+                "requirements": request.requirements,
+                "environments": request.environments,
+                "parsed_params": {**parsed, "name": request.name},
+            }
+        })
+
+        redis_client.set((f"tool-{str(tool_id)}", image_data["image_name"]))
+
+        return {
+            "deployment_id": str(tool_id),
+            "status": "re-deployed",
+            "hash": new_hash
+        }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print("🔴   ", e)
+        return JSONResponse(content={"error": f"{e}"}, status_code=500)
 
 @router.delete(route_prefix + "/{tool_id}", tags=["Tools"])
 def update_tool(tool_id: str):

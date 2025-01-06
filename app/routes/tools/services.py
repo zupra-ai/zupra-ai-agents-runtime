@@ -7,9 +7,9 @@ from app.clients.dbs.mongodb_client import get_tools_db
 
 
 class ToolsService:
-    collection =  None
+    collection = None
     db = None
-    
+
     def __init__(self, fn_collection_name="functions"):
         try:
             self.db = get_tools_db()
@@ -17,15 +17,38 @@ class ToolsService:
         except:
             raise Exception("Error connection to Functions DB")
 
-        
     def create_tool(self, tool):
         try:
-           inserted = self.collection.insert_one(tool)
-           return inserted.inserted_id
+            inserted = self.collection.insert_one(tool)
+            return inserted.inserted_id
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
-    
-    
+
+    def update_one(self, tool_id: ObjectId, payload: dict):
+        try:
+            inserted = self.collection.update_one({"_id": tool_id}, payload)
+            return inserted.inserted_id
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    def find_tools(self, params: dict):
+        try:
+            tools = self.collection.find(params)
+
+            return [{
+                "id": str(tool["_id"]),
+                "name": tool.get("parsed_params", {}).get("name", ""),
+                "body": tool.get("_function", ""),
+                "runtime": tool.get("runtime", ""),
+                "environments": tool.get("environments", ""),
+                "requirements": tool.get("requirements", ""),
+                "hash": tool.get("hash"),
+                "parsed_params": tool.get("parsed_params", {})
+            } for tool in tools]
+
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
     def get_tool(self, tool_id):
         try:
             tool = self.collection.find_one({"_id": ObjectId(tool_id)})
@@ -42,12 +65,13 @@ class ToolsService:
                 "parsed_params": tool.get("parsed_params", {})
             }
         except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))    
+            raise HTTPException(status_code=400, detail=str(e))
+
     def get_tools(self):
         try:
-            functions = self.collection.find({ 
+            functions = self.collection.find({
             }).skip(0).limit(20).sort({"_id": -1})
-            
+
             return {
                 "data": [{
                     "id": str(func["_id"]),
