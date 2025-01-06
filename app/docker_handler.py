@@ -1,5 +1,5 @@
 import re
-from app.settings import max_container_exec_time
+from app.settings import settings
 from app.tools_commons.base import build_core_class
 from pathlib import Path
 import time
@@ -9,19 +9,19 @@ import os
 import docker
 from app.settings import settings
 from fastapi import HTTPException
+from app.clients.docker_client import docker_client as client
 
-
-try:
-    client = docker.from_env(
-        # version="auto",
-        # environment={
-        #     'DOCKER_TLS_VERIFY': '0',
-        #     'DOCKER_HOST': 'tcp://192.168.1.154:2375',
-        # }
-    )
-    print("🟩   Connected docker")
-except Exception as e:
-    print("🔴   Error connection docker", f"{e}")
+# try:
+#     client = docker.from_env(
+#         # version="auto",
+#         # environment={
+#         #     'DOCKER_TLS_VERIFY': '0', 
+#         #     'DOCKER_HOST': 'tcp://192.168.1.154:2375',
+#         # }
+#     )
+#     print("🟩   Connected docker")
+# except Exception as e:
+#     print("🔴   Error connection docker", f"{e}")
 
 
 def remove_images_containers(image_name: str):
@@ -30,6 +30,7 @@ def remove_images_containers(image_name: str):
         # Step 1: List all containers using the image
         containers = client.containers.list(
             all=True, filters={'ancestor': image_name})
+        
         print("Found", f"{len(containers)} containers associated to this image")
 
         # Step 2: Stop and remove each container
@@ -261,7 +262,7 @@ def run_container(image_name: str, params: dict, auto_remove=False):
                 
             )
 
-            container.wait(timeout=max_container_exec_time)
+            container.wait(timeout=settings.max_container_exec_time)
 
             output = container.logs().decode("utf-8")
             

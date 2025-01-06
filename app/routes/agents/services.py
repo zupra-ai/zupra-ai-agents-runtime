@@ -2,15 +2,16 @@
 
 from bson import ObjectId
 from fastapi import HTTPException
+from app.routes.agents.schemas import NewAgentRequest
 
 from app.clients.dbs.mongodb_client import get_tools_db
 
 
-class ToolsService:
+class AgentsService:
     collection =  None
     db = None
     
-    def __init__(self, fn_collection_name="functions"):
+    def __init__(self, fn_collection_name="agents"):
         try:
             self.db = get_tools_db()
             self.collection = self.db[fn_collection_name]
@@ -18,15 +19,34 @@ class ToolsService:
             raise Exception("Error connection to Functions DB")
 
         
-    def create_tool(self, tool):
+    def create_agent(self, new_tool: NewAgentRequest):
         try:
-           inserted = self.collection.insert_one(tool)
-           return inserted.inserted_id
+           
+            tools_collection  = self.db["functions"]
+           
+            query = {
+                "_id": {
+                     "$in": [ObjectId(tool_id) for tool_id in new_tool.tools_ids]
+                }
+              }
+            
+            tools = tools_collection.find(query)   
+            
+            if len(list(tools)) != len(new_tool.tools_ids):
+                raise HTTPException(status_code=404, detail="Some Tool not found")
+            
+            if ["autonomous", "planned", "hybrid"].index(new_tool.agent_type) == -1:
+                raise HTTPException(status_code=400, detail="Invalid agent type")
+            
+            inserted = self.collection.insert_one(new_tool.model_dump())
+              
+            return inserted.inserted_id
+        
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
     
     
-    def get_tool(self, tool_id):
+    def get_agent(self, tool_id):
         try:
             tool = self.collection.find_one({"_id": ObjectId(tool_id)})
             if tool is None:
@@ -43,7 +63,8 @@ class ToolsService:
             }
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))    
-    def get_tools(self):
+    
+    def get_agents(self):
         try:
             functions = self.collection.find({ 
             }).skip(0).limit(20).sort({"_id": -1})
@@ -51,13 +72,9 @@ class ToolsService:
             return {
                 "data": [{
                     "id": str(func["_id"]),
-                    "name": func.get("parsed_params", {}).get("name", ""),
-                    "description": func.get("parsed_params", {}).get("description", ""),
-                    "runtime": func["runtime"],
-                    "hash": func.get("hash"),
-                    "organization_id": func.get("organization_id"),
-                    "tag_name": func.get("tag_name"),
-                    "updated_at": func.get("updated_at"),
+                    "name": func.get("name"),
+                    "application_id": func.get("application_id"),
+                    "tools_ids": func.get("tools_ids", []),
                 } for func in functions]
             }
         except Exception as e:

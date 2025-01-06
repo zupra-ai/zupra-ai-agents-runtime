@@ -53,8 +53,11 @@ def parse_function_docstring(function_str):
 
 def build_core_class():
     return """import requests
+
+# Base bff endpoint
 PUBLIC_BFF_URL = '""" + settings.bff_public_url + """'
 
+# Base Tool Context
 class ToolContext:
 
     agent_id = ""
@@ -66,6 +69,7 @@ class ToolContext:
         self.thread_id = thread_id
         self.application_api_key = application_api_key
     
+    # Search in Long-term memory
     async def search_in_ltm(self, question: str):
         if self.thread_id == "":
             raise Exception("Thread ID is not set")
