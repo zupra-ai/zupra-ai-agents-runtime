@@ -19,9 +19,9 @@ Follow these steps to set up and run the project:
 - Docker Compose
 
 ### 🔨  Run for Devs
-``` make up-s``` for run basic services
+```make up-s``` for run basic services
 
-``` make dev-api ``` for run Rest API
+```make dev-api``` for run Rest API
 
 ### Installation
 
