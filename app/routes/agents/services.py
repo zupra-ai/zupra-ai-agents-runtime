@@ -30,7 +30,7 @@ class AgentsService:
                 }
               }
             
-            tools = tools_collection.find(query)   
+            tools = tools_collection.find(query)
             
             if len(list(tools)) != len(new_tool.tools_ids):
                 raise HTTPException(status_code=404, detail="Some Tool not found")
@@ -72,8 +72,10 @@ class AgentsService:
             return {
                 "data": [{
                     "id": str(func["_id"]),
+                    "mrn": func.get("mrn"),
                     "name": func.get("name"),
                     "application_id": func.get("application_id"),
+                    "trait_text": func.get("trait_text"),
                     "tools_ids": func.get("tools_ids", []),
                 } for func in functions]
             }

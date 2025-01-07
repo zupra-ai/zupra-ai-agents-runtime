@@ -27,11 +27,11 @@ class ToolsService:
     def update_one(self, tool_id: ObjectId, payload: dict):
         try:
             inserted = self.collection.update_one({"_id": tool_id}, payload)
-            return inserted.inserted_id
+            return inserted
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    def find_tools(self, params: dict):
+    def find_all(self, params: dict):
         try:
             tools = self.collection.find(params)
 
@@ -39,12 +39,31 @@ class ToolsService:
                 "id": str(tool["_id"]),
                 "name": tool.get("parsed_params", {}).get("name", ""),
                 "body": tool.get("_function", ""),
+                "image_name": tool["image_name"],
                 "runtime": tool.get("runtime", ""),
                 "environments": tool.get("environments", ""),
                 "requirements": tool.get("requirements", ""),
                 "hash": tool.get("hash"),
                 "parsed_params": tool.get("parsed_params", {})
             } for tool in tools]
+
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    def find_one(self, params: dict):
+        try:
+            tool = self.collection.find_one(params)
+            return {
+                "id": str(tool["_id"]),
+                "name": tool.get("parsed_params", {}).get("name", ""),
+                "image_name": tool["image_name"],
+                "body": tool.get("_function", ""),
+                "runtime": tool.get("runtime", ""),
+                "environments": tool.get("environments", ""),
+                "requirements": tool.get("requirements", ""),
+                "hash": tool.get("hash"),
+                "parsed_params": tool.get("parsed_params", {})
+            } 
 
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))

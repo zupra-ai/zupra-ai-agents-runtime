@@ -44,8 +44,7 @@ def create_tool(new_tool: NewToolRequest):
         try:
             temp_dir = create_docker_image_sources(unique_id=unique_id,
                                                    base_image_name="python:3.11-slim",
-                                                   code=str(
-                                                       base_code.encode("utf-8")),
+                                                   code=str(base_code.encode("utf-8")),
                                                    requirements_txt=new_tool.requirements,
                                                    environments_txt=new_tool.environments,
                                                    )
@@ -79,7 +78,9 @@ def create_tool(new_tool: NewToolRequest):
         
         try:
             vector_db = ChromaClient()
+            
             print("Inserting into vector db")
+            
             vector_db.add_document(
                 collection_name="tools-mapping",
                 documents=[
@@ -135,7 +136,7 @@ def update_tool(tool_id: str, request: NewToolRequest):
 
         # tools_collection = db["functions"]
         
-        tools_search = service.find_tools({"parsed_params.name": request.name,})
+        new_function = service.find_one({"parsed_params.name": request.name,})
         
         
         # tool_exists = tools_collection.find_one({
@@ -150,7 +151,7 @@ def update_tool(tool_id: str, request: NewToolRequest):
         if parsed is None:
             raise Exception("Invalid docstring")
 
-        _code = build_base_function(request.code)
+        base_code = build_base_function(request.code)
 
         # new_function = tools_collection.find_one({
         #     "_id": ObjectId(deployment_id),
@@ -180,7 +181,7 @@ def update_tool(tool_id: str, request: NewToolRequest):
         try:
             temp_dir = create_docker_image_sources(unique_id=unique_id,
                                                    base_image_name=python_executor_image,
-                                                   code=_code,
+                                                   code=str(base_code.encode("utf-8")),
                                                    requirements_txt=request.requirements,
                                                    environments_txt=request.environments
                                                    )
@@ -212,8 +213,28 @@ def update_tool(tool_id: str, request: NewToolRequest):
                 "parsed_params": {**parsed, "name": request.name},
             }
         })
+        
+        print("image data", image_data)
 
-        redis_client.set((f"tool-{str(tool_id)}", image_data["image_name"]))
+        redis_client.set(f"tool-{str(tool_id)}", image_data["image_name"])
+        
+        try:
+            vector_db = ChromaClient()
+            
+            print("Updating into vector db")
+            
+            vector_db.update_documents(
+                collection_name="tools-mapping",
+                documents=[
+                    EmbeddableDocument(
+                    id=tool_id,
+                    content=parsed.get("description", ""),
+                    metadata={"name": request.name}
+                )
+            ])
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error saving tool to Vector DB: {str(e)}")
 
         return {
             "deployment_id": str(tool_id),

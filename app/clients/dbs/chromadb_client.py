@@ -13,7 +13,7 @@ class ChromaClient:
 
     def add_document(self, collection_name: str, documents: list[EmbeddableDocument]):
 
-        collection :Collection = self.client.get_or_create_collection(
+        collection : Collection = self.client.get_or_create_collection(
             name=collection_name, metadata={"hnsw:space": "cosine"})
 
         embeddings = BaseEmbeddings()
@@ -27,3 +27,20 @@ class ChromaClient:
             metadatas.append(doc.metadata)
 
         return collection.add(embeddings=embeddings, ids=ids, metadatas=metadatas)
+
+    def update_documents(self, collection_name: str, documents: list[EmbeddableDocument]):
+
+        collection :Collection = self.client.get_collection(name=collection_name)
+
+        embeddings = BaseEmbeddings()
+        
+        embeddings = embeddings.embed([doc.content for doc in documents])
+        ids = []
+        metadatas = []
+
+        for doc in documents:
+            ids.append(str(doc.id))
+            metadatas.append(doc.metadata)
+
+        return collection.update(embeddings=embeddings, ids=ids, metadatas=metadatas)
+

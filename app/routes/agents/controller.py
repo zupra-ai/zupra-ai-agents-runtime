@@ -11,7 +11,7 @@ route_prefix = "/agents"
 service =  AgentsService()
 
 @router.post(route_prefix , tags=["Agents"])
-def create_thread(new_tool: NewAgentRequest):
+def create_agent(new_tool: NewAgentRequest):
     """
     Endpoint to create and run a container.
     """
