@@ -26,20 +26,13 @@ class ThreadsService:
             raise HTTPException(status_code=400, detail=str(e))
     
     
-    def get_thread(self, tool_id):
+    def get_thread(self, thread_id):
         try:
-            tool = self.collection.find_one({"_id": ObjectId(tool_id)})
+            tool = self.collection.find_one({"_id": ObjectId(thread_id)})
             if tool is None:
-                raise HTTPException(status_code=404, detail="Tool not found")
+                raise HTTPException(status_code=404, detail="Thread not found")
             return {
                 "id": str(tool["_id"]),
-                "name": tool.get("parsed_params", {}).get("name", ""),
-                "body": tool.get("_function", ""),
-                "runtime": tool.get("runtime", ""),
-                "environments": tool.get("environments", ""),
-                "requirements": tool.get("requirements", ""),
-                "hash": tool.get("hash"),
-                "parsed_params": tool.get("parsed_params", {})
             }
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))    
