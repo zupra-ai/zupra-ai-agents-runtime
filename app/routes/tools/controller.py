@@ -203,10 +203,8 @@ def update_tool(tool_id: str, request: NewToolRequest):
         new_function = service.update_one(ObjectId(str(tool_id)), {
             "$set": {
                 "deployment_id": unique_id,
-                # "description": parsed["description"],
                 "image_name": image_data["image_name"],
                 "hash": new_hash,
-                # "_function_name": request.name,
                 "_function": request.code,
                 "requirements": request.requirements,
                 "environments": request.environments,

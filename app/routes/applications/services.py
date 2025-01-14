@@ -2,12 +2,12 @@
 
 from bson import ObjectId
 from fastapi import HTTPException
-from app.routes.agents.schemas import CreatedAgentResponse, NewAgentRequest
+from app.routes.agents.schemas import NewAgentRequest
 
 from app.clients.dbs.mongodb_client import get_tools_db
 
 
-class AgentsService:
+class ApplicationsService:
     collection =  None
     db = None
     
@@ -19,26 +19,26 @@ class AgentsService:
             raise Exception("Error connection to Functions DB")
 
         
-    def create_agent(self, new_agent: NewAgentRequest):
+    def create_agent(self, new_tool: NewAgentRequest):
         try:
            
             tools_collection  = self.db["functions"]
            
             query = {
                 "_id": {
-                     "$in": [ObjectId(tool_id) for tool_id in new_agent.tools_ids]
+                     "$in": [ObjectId(tool_id) for tool_id in new_tool.tools_ids]
                 }
-            }
+              }
             
             tools = tools_collection.find(query)
             
-            if len(list(tools)) != len(new_agent.tools_ids):
-                raise HTTPException(status_code=404, detail="Some Tool were not found, initial length does't match with found length")
+            if len(list(tools)) != len(new_tool.tools_ids):
+                raise HTTPException(status_code=404, detail="Some Tool not found")
             
-            if ["autonomous", "planned", "hybrid"].index(new_agent.type) == -1:
+            if ["autonomous", "planned", "hybrid"].index(new_tool.agent_type) == -1:
                 raise HTTPException(status_code=400, detail="Invalid agent type")
             
-            inserted = self.collection.insert_one(new_agent.model_dump())
+            inserted = self.collection.insert_one(new_tool.model_dump())
               
             return inserted.inserted_id
         
@@ -61,20 +61,21 @@ class AgentsService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))    
     
-    def get_agents(self) -> list[dict]:
+    def get_agents(self):
         try:
-            agents_list = self.collection.find().skip(0).limit(20).sort({"_id": -1})
+            functions = self.collection.find({ 
+            }).skip(0).limit(20).sort({"_id": -1})
             
-            
-            
-            return  [{
-                    "id": str(agent["_id"]),
-                    "mrn": agent.get("mrn", ""),
-                    "name": agent.get("name", ""),
-                    "type": agent.get("type", ""),
-                    "organization_id": agent.get("organization_id", ""),
-                    "trait_text": agent.get("trait_text", ""),
-                    "tools_ids": agent.get("tools_ids", []),
-                } for agent in agents_list]
+            return {
+                "data": [{
+                    "id": str(func["_id"]),
+                    "mrn": func.get("mrn"),
+                    "name": func.get("name"),
+                    "type": func.get("type"),
+                    "application_id": func.get("application_id"),
+                    "trait_text": func.get("trait_text"),
+                    "tools_ids": func.get("tools_ids", []),
+                } for func in functions]
+            }
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))

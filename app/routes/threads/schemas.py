@@ -6,3 +6,7 @@ class NewThreadRequest(BaseModel):
     organization_id: Optional[str] = Field() 
     application_id: Optional[str] = Field() 
     agent_id: str = Field() 
+
+
+class AgentInvokeRequest(BaseModel):
+    instructions: str = Field(description="Instructions text")
