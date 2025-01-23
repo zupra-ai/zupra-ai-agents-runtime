@@ -18,9 +18,7 @@ def create_thread(new_tool: NewThreadRequest):
     Endpoint to create and run a container.
     """
     try:
-        inserted =  service.create_thread({
-            **new_tool.model_dump()
-        })
+        inserted =  service.create_thread(tool=new_tool)
         
         return {"id": str(inserted)}
 
@@ -41,19 +39,9 @@ def get_thread_history(thread_id: str, offset: int = Query(default=0), limit: in
     """
     Get container information by name.
     """
-    container_id = redis_client.get(thread_id)
-    if not container_id:
-        raise HTTPException(status_code=404, detail="Container not found in Redis")
-    
-    container = docker_client.containers.get(container_id)
-    return {
-        "id": container.id,
-        "name": container.name,
-        "status": container.status,
-        "image": container.image.tags,
-    }
+    raise HTTPException(status_code=500, detail="Not Implemented")
 
-@router.post(route_prefix + "/{thread_id}/invoke-as/{agent_id}", tags=["Threads"])
+@router.post(route_prefix + "/{thread_id}/invoke-as/{agent_id}", tags=["Threads"], summary="Invoke Agent within a context")
 def invoke_agent(agent_id: str, thread_id: str, request: AgentInvokeRequest):
     """
     Get container information by name.
@@ -64,11 +52,9 @@ def invoke_agent(agent_id: str, thread_id: str, request: AgentInvokeRequest):
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not Found")
     
-    thread = service.get_thread(agent_id=agent_id)
+    thread = service.get_thread(thread_id=thread_id)
     
     if not thread:
         raise HTTPException(status_code=404, detail="Thread not Found")
     
-    return {
-        "id": "call",
-    }
+    raise HTTPException(status_code=500, detail="Not Implemented")

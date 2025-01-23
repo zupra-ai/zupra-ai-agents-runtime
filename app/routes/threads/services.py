@@ -4,6 +4,11 @@ from bson import ObjectId
 from fastapi import HTTPException
 
 from app.clients.dbs.mongodb_client import get_tools_db
+from app.routes.agents.services import AgentsService
+from app.routes.applications.services import ApplicationsService
+from app.routes.threads.schemas import NewThreadRequest
+
+
 
 
 class ThreadsService:
@@ -18,10 +23,16 @@ class ThreadsService:
             raise Exception("Error connection to Functions DB")
 
         
-    def create_thread(self, tool):
+    def create_thread(self, tool: NewThreadRequest):
         try:
-           inserted = self.collection.insert_one(tool)
-           return inserted.inserted_id
+            app_service = ApplicationsService()
+            app = app_service.get_application(tool.application_id)
+            
+            agent_service = AgentsService()
+            app = agent_service.get_agent(tool.agent_id)
+            
+            inserted = self.collection.insert_one(tool.model_dump())
+            return inserted.inserted_id
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
     

@@ -1,7 +1,23 @@
-#   zupra_ai | AI Agentic Apps Runtime
+#   zupra_ai_runtime | Agents Runtime
 
 Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
 
+
+## Table of Contents
+
+- [zupra\_ai\_runtime | Agents Runtime](#zupra_ai_runtime--agents-runtime)
+  - [Table of Contents](#table-of-contents)
+  - [🥡   Features](#---features)
+  - [🚀   Getting Started](#---getting-started)
+    - [👀  Prerequisites](#--prerequisites)
+    - [🔨  Run for Devs](#--run-for-devs)
+    - [Installation](#installation)
+    - [Configuration](#configuration)
+    - [Usage](#usage)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Contact](#contact)
+  - [Additional Resources](#additional-resources)
 ## 🥡   Features
 
 - **Autonomous and Planned Agents Runtime**: Seamlessly manage different types of agents.

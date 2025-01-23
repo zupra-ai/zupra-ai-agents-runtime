@@ -2,7 +2,11 @@
 
 from bson import ObjectId
 from fastapi import HTTPException
+from app.clients.dbs.chromadb_client import ChromaClient
+from app.clients.dbs.schemas import EmbeddableDocument
+import json
 from app.routes.agents.schemas import CreatedAgentResponse, NewAgentRequest
+from app.clients.redis_client import redis_client
 
 from app.clients.dbs.mongodb_client import get_tools_db
 
@@ -30,17 +34,38 @@ class AgentsService:
                 }
             }
             
-            tools = tools_collection.find(query)
+            tools_bound = tools_collection.find(query)
             
-            if len(list(tools)) != len(new_agent.tools_ids):
-                raise HTTPException(status_code=404, detail="Some Tool were not found, initial length does't match with found length")
+            tools_bound_list = list(tools_bound)
+            
+            if len(tools_bound_list) != len(new_agent.tools_ids):
+                raise HTTPException(status_code=400, detail=f"Some Tool were not found, initial length ({len(new_agent.tools_ids)}) does't match with found ({len(tools_bound_list)}) length")
             
             if ["autonomous", "planned", "hybrid"].index(new_agent.type) == -1:
                 raise HTTPException(status_code=400, detail="Invalid agent type")
             
             inserted = self.collection.insert_one(new_agent.model_dump())
               
-            return inserted.inserted_id
+            inserted_id = inserted.inserted_id
+            
+            doc_store = ChromaClient()
+            
+            print("Inserting into vector db")
+            
+            doc_store.add_document(
+                collection_name=f"agent-{str(inserted_id)}-snapshot",
+                documents=[
+                    EmbeddableDocument(
+                    id=str(tool.get("_id")),
+                    content=tool.get("parsed_params",{}).get("description", ""),
+                    metadata={
+                        "name": tool.get("parsed_params", {}).get("name", ""),
+                        "parameters": json.dumps(tool.get("parsed_params", {}).get("args", [])),
+                        }
+                ) for tool in tools_bound_list
+            ])
+            
+            return inserted_id
         
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))

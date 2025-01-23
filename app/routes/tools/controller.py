@@ -77,11 +77,11 @@ def create_tool(new_tool: NewToolRequest):
         
         
         try:
-            vector_db = ChromaClient()
+            doc_store = ChromaClient()
             
             print("Inserting into vector db")
             
-            vector_db.add_document(
+            doc_store.add_document(
                 collection_name="tools-mapping",
                 documents=[
                     EmbeddableDocument(
@@ -217,11 +217,11 @@ def update_tool(tool_id: str, request: NewToolRequest):
         redis_client.set(f"tool-{str(tool_id)}", image_data["image_name"])
         
         try:
-            vector_db = ChromaClient()
+            doc_store = ChromaClient()
             
             print("Updating into vector db")
             
-            vector_db.update_documents(
+            doc_store.update_documents(
                 collection_name="tools-mapping",
                 documents=[
                     EmbeddableDocument(
