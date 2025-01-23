@@ -5,13 +5,17 @@ from fastapi import HTTPException
 from app.routes.agents.schemas import NewAgentRequest
 
 from app.clients.dbs.mongodb_client import get_tools_db
+from app.routes.agents.services import AgentsService
+from app.routes.applications.schemas import NewApplicationRequest
 
 
 class ApplicationsService:
+    
     collection =  None
+    
     db = None
     
-    def __init__(self, fn_collection_name="agents"):
+    def __init__(self, fn_collection_name="applications"):
         try:
             self.db = get_tools_db()
             self.collection = self.db[fn_collection_name]
@@ -19,26 +23,13 @@ class ApplicationsService:
             raise Exception("Error connection to Functions DB")
 
         
-    def create_agent(self, new_tool: NewAgentRequest):
+    def create_application(self, new_application: NewApplicationRequest):
         try:
-           
-            tools_collection  = self.db["functions"]
-           
-            query = {
-                "_id": {
-                     "$in": [ObjectId(tool_id) for tool_id in new_tool.tools_ids]
-                }
-              }
+            agent_service = AgentsService()
             
-            tools = tools_collection.find(query)
+            agent_service.get_agent(agent_id=new_application.default_agent_id)
             
-            if len(list(tools)) != len(new_tool.tools_ids):
-                raise HTTPException(status_code=404, detail="Some Tool not found")
-            
-            if ["autonomous", "planned", "hybrid"].index(new_tool.agent_type) == -1:
-                raise HTTPException(status_code=400, detail="Invalid agent type")
-            
-            inserted = self.collection.insert_one(new_tool.model_dump())
+            inserted = self.collection.insert_one(new_application.model_dump())
               
             return inserted.inserted_id
         
@@ -46,12 +37,12 @@ class ApplicationsService:
             raise HTTPException(status_code=400, detail=str(e))
     
     
-    def get_agent(self, agent_id:str):
+    def get_application(self, agent_id:str):
         try:
             agent = self.collection.find_one({"_id": ObjectId(agent_id)})
             
             if agent is None:
-                raise HTTPException(status_code=404, detail="Tool not found")
+                raise HTTPException(status_code=404, detail="Application not found")
             
             return {
                 "id": str(agent["_id"]),
@@ -61,21 +52,20 @@ class ApplicationsService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))    
     
-    def get_agents(self):
+    def get_applications(self):
         try:
             functions = self.collection.find({ 
             }).skip(0).limit(20).sort({"_id": -1})
             
-            return {
-                "data": [{
-                    "id": str(func["_id"]),
-                    "mrn": func.get("mrn"),
+            return [{
+                    "id": str(func["_id"]), 
                     "name": func.get("name"),
-                    "type": func.get("type"),
-                    "application_id": func.get("application_id"),
-                    "trait_text": func.get("trait_text"),
-                    "tools_ids": func.get("tools_ids", []),
+                    "description": func.get("description"),
+                    "accepted_origins": func.get("accepted_origins",[]),
+                    "starter_messages": func.get("starter_messages",[]),
+                    "default_agent_id": func.get("default_agent_id"),
+                    "agents_ids": func.get("agents_ids", []),
                 } for func in functions]
-            }
+            
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
