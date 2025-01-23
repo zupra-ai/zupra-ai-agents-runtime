@@ -1,13 +1,12 @@
-#   zupra_ai_runtime | Agents Runtime
+# Zupra Runtime | Agentic Applications Runtime
 
 Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
 
-
 ## Table of Contents
 
-- [zupra\_ai\_runtime | Agents Runtime](#zupra_ai_runtime--agents-runtime)
+- [Zupra Runtime | Agentic Applications Runtime](#zupra-runtime--agentic-applications-runtime)
   - [Table of Contents](#table-of-contents)
-  - [🥡   Features](#---features)
+  - [Architecture](#architecture)
   - [🚀   Getting Started](#---getting-started)
     - [👀  Prerequisites](#--prerequisites)
     - [🔨  Run for Devs](#--run-for-devs)
@@ -18,20 +17,10 @@ Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust ru
   - [License](#license)
   - [Contact](#contact)
   - [Additional Resources](#additional-resources)
-## 🥡   Features
 
-- **Autonomous and Planned Agents Runtime**: Seamlessly manage different types of agents.
-- **Tool Management**: Integrate and manage various tools required by your agents.
-- **Thread Management**: Efficiently handle multiple threads for concurrent processing.
-- **Scalable and Flexible**: Built with Docker, FastAPI, and Redis for scalability and flexibility.
-
-
+## Architecture
 
 ![Architecture](https://github.com/zupra-ai/zupra-ai-agents-runtime/blob/main/assets/architecture.png)
-
-
-
-
 
 ## 🚀   Getting Started
 
@@ -43,6 +32,7 @@ Follow these steps to set up and run the project:
 - Docker Compose
 
 ### 🔨  Run for Devs
+
 ```make up-s``` for run basic services
 
 ```make dev-api``` for run Rest API
@@ -50,12 +40,14 @@ Follow these steps to set up and run the project:
 ### Installation
 
 1. **Clone the Repository**:
+
     ```bash
     git clone https://github.com/zupra-ai/zupra-ai-agents-runtime.git
     cd zupra-ai-agents-runtime
     ```
 
 2. **Build and Run the Docker Containers**:
+
     ```bash
     docker-compose up --build
     ```
@@ -70,7 +62,8 @@ Configure your agents, tools, and threads in the `config` directory. Update the 
 ### Usage
 
 1. **Register an Agent**:
-    Use the FastAPI endpoint to register a new agent.
+
+Use the FastAPI endpoint to register a new agent.
     ```bash
     curl -X POST "http://localhost:8000/agents/" -H "Content-Type: application/json" -d '{"name": "agent_name", "type": "autonomous"}'
     ```
