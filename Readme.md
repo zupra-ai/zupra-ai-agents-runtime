@@ -25,6 +25,14 @@ Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust ru
 - **Thread Management**: Efficiently handle multiple threads for concurrent processing.
 - **Scalable and Flexible**: Built with Docker, FastAPI, and Redis for scalability and flexibility.
 
+
+
+![Architecture](https://github.com/zupra-ai/zupra-ai-agents-runtime/blob/main/assets/architecture.png)
+
+
+
+
+
 ## 🚀   Getting Started
 
 Follow these steps to set up and run the project:
