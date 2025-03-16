@@ -1,18 +1,20 @@
-# Zupra Runtime | Agentic Applications Runtime
+# Agentic Applications Runtime - Zupra.AI
 
-Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for managing both autonomous and non-autonomous LLM agents, tools, threads, and more.
+Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for  autonomous and planned LLM Agents, tools, threads and memory.
 
 ## Table of Contents
 
-- [Zupra Runtime | Agentic Applications Runtime](#zupra-runtime--agentic-applications-runtime)
+- [Agentic Applications Runtime - Zupra.AI](#agentic-applications-runtime---zupraai)
   - [Table of Contents](#table-of-contents)
   - [Architecture](#architecture)
   - [🚀   Getting Started](#---getting-started)
     - [👀  Prerequisites](#--prerequisites)
-    - [🔨  Run for Devs](#--run-for-devs)
+  - [🔨  Run for Devs](#--run-for-devs)
+    - [Run Basic Services](#run-basic-services)
+    - [Run Rest API](#run-rest-api)
+    - [Run Web Application](#run-web-application)
     - [Installation](#installation)
     - [Configuration](#configuration)
-    - [Usage](#usage)
   - [Contributing](#contributing)
   - [License](#license)
   - [Contact](#contact)
@@ -31,11 +33,19 @@ Follow these steps to set up and run the project:
 - Docker
 - Docker Compose
 
-### 🔨  Run for Devs
+## 🔨  Run for Devs
 
-```make up-s``` for run basic services
+### Run Basic Services
 
-```make dev-api``` for run Rest API
+```make ups```
+
+### Run Rest API
+
+```make dev-api``` reachable at [FastAPI Swagger](http://localhost:9000/docs)
+
+### Run Web Application
+
+```make dev-web``` reachable at [Web Manager](http://localhost:5173)
 
 ### Installation
 
@@ -52,28 +62,10 @@ Follow these steps to set up and run the project:
     docker-compose up --build
     ```
 
-3. **Access the FastAPI Documentation**:
-    Open your browser and navigate to `http://localhost:8000/docs` to explore the API documentation.
-
 ### Configuration
 
 Configure your agents, tools, and threads in the `config` directory. Update the `config.yaml` file to suit your needs.
-
-### Usage
-
-1. **Register an Agent**:
-
-Use the FastAPI endpoint to register a new agent.
-    ```bash
-    curl -X POST "http://localhost:8000/agents/" -H "Content-Type: application/json" -d '{"name": "agent_name", "type": "autonomous"}'
-    ```
-
-2. **Manage Tools**:
-    Add or remove tools using the provided API endpoints.
-
-3. **Monitor Threads**:
-    Check the status of threads and manage them as needed.
-
+ 
 ## Contributing
 
 We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for more details.
