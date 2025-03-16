@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.clients.redis_client import redis_client
 from app.routes.tools.controller import router as tools_router
 from app.routes.threads.controller import router as threads_router
@@ -14,6 +16,19 @@ app = FastAPI(
               """,
     version="1.0",
 )
+
+origins = [ 
+    "http://localhost:5173", 
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class Utf8Middleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
