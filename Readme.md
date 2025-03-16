@@ -1,3 +1,5 @@
+![Logo](https://github.com/zupra-ai/zupra-ai-agents-runtime/blob/main/assets/logo.png)
+
 # Agentic Applications Runtime - Zupra.AI
 
 Welcome to Zupra AI Runtime for Agentic Tools! This project provides a robust runtime environment for  autonomous and planned LLM Agents, tools, threads and memory.
