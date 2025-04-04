@@ -1,0 +1,26 @@
+yarn run v1.22.21
+$ next dev --turbopack
+   ▲ Next.js 15.2.4 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://172.28.192.1:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 16.5s
+ ○ Compiling /agents ...
+ ✓ Compiled /agents in 36.4s
+ GET /agents 200 in 39553ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 3s
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 3515ms
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 8.6s
+ GET /avatars/shadcn.jpg 404 in 9290ms
+ GET /agents 200 in 1277ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 926ms
+ GET /avatars/shadcn.jpg 404 in 1057ms
+ GET /agents 200 in 498ms
+ GET /favicon.ico?favicon.45db1c09.ico 200 in 239ms
+ GET /avatars/shadcn.jpg 404 in 611ms
+^Cerror Command failed with exit code 3221225786.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
