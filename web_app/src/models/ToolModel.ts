@@ -7,6 +7,8 @@ interface ToolModel {
   organization_id: string;
   tag_name: string;
   body?: string;
+  requirements?: string;
+  environments?: string;
   updated_at: string; // or Date if you prefer to parse it
 }
 

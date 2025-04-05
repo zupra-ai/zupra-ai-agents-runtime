@@ -44,12 +44,12 @@ const columns: ColumnDef<ToolModel>[] = [
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+      cell: ({ row }) => <div className="">{row.getValue("name")}</div>,
     }, 
     {
       accessorKey: "tag_name",
       header: "Tag name",
-      cell: ({ row }) => <div className="capitalize">{row.getValue("tag_name")}</div>,
+      cell: ({ row }) => <div className="">{row.getValue("tag_name")}</div>,
     }, 
     {
       id: "actions",

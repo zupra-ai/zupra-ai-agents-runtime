@@ -4,6 +4,7 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from docker import from_env as docker_from_env
 from fastapi.responses import JSONResponse
+from fastapi import Request
 from app.clients.dbs.chromadb_client import ChromaClient
 from app.clients.dbs.schemas import EmbeddableDocument
 from app.clients.redis_client import redis_client
@@ -12,6 +13,8 @@ from app.routes.tools.schemas import NewToolRequest
 from app.clients.docker_client import docker_client
 from app.routes.tools.services import ToolsService
 from app.tools_commons.base import parse_function_docstring, build_base_function
+
+from app.docker_handler import run_container
 import hashlib
 hasher = hashlib.sha256()
 
@@ -38,13 +41,13 @@ def create_tool(new_tool: NewToolRequest):
                 status_code=400, detail="Error parsing function, please see http://docs.zupra.ai/api-ref/tool-main-action#function-parameters")
 
         base_code = build_base_function(new_tool.code)
-
+        
         unique_id = str(uuid.uuid4())
 
         try:
             temp_dir = create_docker_image_sources(unique_id=unique_id,
                                                    base_image_name="python:3.11-slim",
-                                                   code=str(base_code.encode("utf-8")),
+                                                   code=base_code,
                                                    requirements_txt=new_tool.requirements,
                                                    environments_txt=new_tool.environments,
                                                    )
@@ -243,9 +246,28 @@ def update_tool(tool_id: str, request: NewToolRequest):
         print("🔴   ", e)
         return JSONResponse(content={"error": f"{e}"}, status_code=500)
 
+
 @router.delete(route_prefix + "/{tool_id}", tags=["Tools"])
-def update_tool(tool_id: str):
+def delete_tool(tool_id: str):
     try:
-        pass
+        HTTPException(status_code=400, detail="not impelemented yet")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post(route_prefix + "/run/{tool_id}", tags=["Tools"])
+async def run_tool(tool_id: str, request: Request):
+    try:
+        tool = service.get_tool(tool_id=tool_id)
+        
+        if tool is None:
+            raise HTTPException(status_code=404, detail="Tool not found")
+        
+        try:
+            body =  await request.json()
+            return run_container(image_name=tool.get("image_name"), params=body, auto_remove=False)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error running container: {str(e)}")
+        
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

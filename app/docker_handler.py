@@ -70,35 +70,34 @@ def create_docker_image_sources(unique_id: str,
                                 requirements_txt: Optional[str],
                                 environments_txt: Optional[str]):
 
-    temp_dir = Path(f"/tmp/{unique_id}")
+    temp_dir = Path(f"/tmp/zupra-mcp--{unique_id}")
     temp_dir.mkdir(parents=True, exist_ok=True)
 
-    temp_dir = Path(f"/tmp/{unique_id}")
-
-    temp_dir.mkdir(parents=True, exist_ok=True)
+    # temp_dir = Path(f"/tmp/{unique_id}")
+    # temp_dir.mkdir(parents=True, exist_ok=True)
 
     dockerfile_path = temp_dir / "Dockerfile"
     code_file_path = temp_dir / "code.py"
     zupra_code = temp_dir / "zupra_core.py"
 
     # Write the user's code to a file
-    with open(code_file_path, "w") as code_file:
+    with open(code_file_path, encoding="utf-8", errors="replace", mode="w") as code_file:
         code_file.write(code)
         code_file.close()
     
-    with open(zupra_code, "w") as code_file:
+    with open(zupra_code, encoding="utf-8", errors="replace", mode="w") as code_file:
         code_file.write(build_core_class())
         code_file.close()
 
     # If requirements are provided, save them to a file
     requirements_path = temp_dir / "requirements.txt"
     if requirements_txt is not None:
-        with open(requirements_path, "w") as req_file:
+        with open(requirements_path, encoding="utf-8", errors="replace", mode="w") as req_file:
             req_file.write(requirements_txt + "\npython-dotenv\nrequests")
 
     environments_path = temp_dir / ".env"
     if environments_txt is not None:
-        with open(environments_path, "w") as req_file:
+        with open(environments_path, encoding="utf-8", errors="replace", mode="w") as req_file:
             req_file.write(environments_txt)
 
     # Create a Dockerfile dynamically
@@ -149,7 +148,7 @@ def build_image(
 
     image_name = f"{image_prefix}-{unique_id}"
 
-    print("🧑‍🏭 building image", image_name)
+    print("🧑‍🏭 building image", image_name, temp_dir)
 
     try:
         image, build_logs = client.images.build(
@@ -221,6 +220,7 @@ def build_image(
             for file in temp_dir.glob("*"):
                 file.unlink()
             temp_dir.rmdir()
+        pass
 
     return {
         "image_name": image_name,
@@ -246,7 +246,7 @@ def run_container(image_name: str, params: dict, auto_remove=False):
                 # user="zupra_user",
                 read_only=True,  # Make filesystem read-only
                 pids_limit=100,
-                detach=True,
+                detach=True, # Run in bg mode
                 # security_opt=["seccomp=default.json"],  # Use seccomp profile
                 stdout=True,
                 stderr=True,
