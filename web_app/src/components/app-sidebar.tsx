@@ -62,8 +62,7 @@ const data = {
         {
           title: "Apps",
           url: "/apps",
-        },
-        ,
+        }, 
         {
           title: "Threads",
           url: "/threads",
