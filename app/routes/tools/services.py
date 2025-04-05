@@ -75,6 +75,7 @@ class ToolsService:
                 raise HTTPException(status_code=404, detail="Tool not found")
             return {
                 "id": str(tool["_id"]),
+                "image_name": tool.get("image_name", "n/a"),
                 "name": tool.get("parsed_params", {}).get("name", ""),
                 "body": tool.get("_function", ""),
                 "runtime": tool.get("runtime", ""),
@@ -94,6 +95,7 @@ class ToolsService:
             return {
                 "data": [{
                     "id": str(func["_id"]),
+                    "image_name": func.get("image_name", "n/a"),
                     "name": func.get("parsed_params", {}).get("name", ""),
                     "description": func.get("parsed_params", {}).get("description", ""),
                     "runtime": func["runtime"],

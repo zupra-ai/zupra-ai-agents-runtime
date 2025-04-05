@@ -1,15 +1,15 @@
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 
 import React, { useEffect } from "react";
-import FunctionEditor from "../editor/FunctionEditor";
 import ToolModel from "@/models/ToolModel";
 import { useOneTools } from "@/api_hooks/useOneTools";
+import EditorLayout from "../editor/EditorLayout";
+import { FunctionSquare } from "lucide-react";
 
 function ToolForm({
   tool,
@@ -32,19 +32,18 @@ function ToolForm({
     <Sheet open={!!tool} onOpenChange={onOpenChange}>
       {isLoading ? (
         <SheetContent className="w-full lg:min-w-[calc(100vw-80px)]">
-        <div>Loading...</div>
+          <div>Loading...</div>
         </SheetContent>
       ) : (
         <SheetContent className="w-full lg:min-w-[calc(100vw-80px)]">
           <SheetHeader>
-            <SheetTitle>Are you absolutely sure?</SheetTitle>
-            <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </SheetDescription>
+            <SheetTitle className="flex items-center gap-2">
+              {" "}
+              <FunctionSquare /> {data?.name}
+            </SheetTitle>
           </SheetHeader>
 
-          <FunctionEditor newCode={data?.body ?? ""} setCode={() => {}} />
+          {data && <EditorLayout tool={data} />}
         </SheetContent>
       )}
     </Sheet>

@@ -130,7 +130,7 @@ def main():
     # Parse parameters from JSON string
     params = json.loads(args.parameters)
     
-    print(params)
+    # print(params)
     
     try:
         if params.get("agent_id") is not None:
